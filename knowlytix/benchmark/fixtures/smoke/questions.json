@@ -1,0 +1,39 @@
+{
+  "$schema": "finstructbench smoke fixture v1",
+  "description": "Minimal smoke-test input for the finstructbench scorer. Exercises exact-match, float-tolerance, set, and multihop parse paths. Size: <5KB. No PII.",
+  "questions": [
+    {
+      "id": "smoke-001",
+      "type": "exact_recall",
+      "question": "What is the total Q3 revenue reported for Acme Widgets?",
+      "ground_truth": "$35.0M",
+      "expected_category": "currency"
+    },
+    {
+      "id": "smoke-002",
+      "type": "threshold",
+      "question": "Consumer Widgets defect rate, as a decimal fraction.",
+      "ground_truth": 0.005,
+      "float_tol": 1e-6
+    },
+    {
+      "id": "smoke-003",
+      "type": "cross_reference",
+      "question": "Which divisions report to the Chief Operations Officer?",
+      "ground_truth": ["Industrial Widgets"],
+      "match": "set"
+    },
+    {
+      "id": "smoke-004",
+      "type": "counting",
+      "question": "How many directors sit on the audit committee?",
+      "ground_truth": 4
+    },
+    {
+      "id": "smoke-005",
+      "type": "boolean",
+      "question": "Does the Research Widgets division generate revenue in Q3 2099?",
+      "ground_truth": false
+    }
+  ]
+}

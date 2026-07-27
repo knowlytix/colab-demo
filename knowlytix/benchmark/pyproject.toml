@@ -1,0 +1,76 @@
+# NOT THE BUILD CONFIG.
+#
+# This is a legacy standalone-repo pyproject.toml carried over from upstream
+# `asudjianto-xml/GMS`'s `finstructbench/` package, which used to be its own
+# PyPI release. It ships inside the `knowlytix-benchmark` wheel because
+# hatchling's `force-include` (in `packaging/knowlytix-benchmark/pyproject.toml`)
+# bypasses the `exclude` rule that nominally drops this file.
+#
+# **The wheel-build source of truth is `packaging/knowlytix-benchmark/pyproject.toml`.**
+# That config produces the actual `knowlytix-benchmark` distribution shipped to
+# PyPI and reads `knowlytix.benchmark.*` as the package namespace. This in-tree
+# file is not consulted by `python -m build` against the packaging tree, and
+# `pip install -e ./knowlytix/benchmark/` would NOT produce a working install
+# — the actual entry-point module is `knowlytix.benchmark.cli`. The naming
+# below reflects the current package layout so customers who unzip the wheel
+# and read this file aren't actively misled.
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "knowlytix-benchmark"
+version = "0.1.0"
+description = "Benchmark for structured information retrieval from financial documents using graph-verifiable questions"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Agus Sudjianto"},
+]
+keywords = [
+    "benchmark",
+    "finance",
+    "llm",
+    "structured-retrieval",
+    "knowledge-graph",
+    "question-answering",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+llm = ["anthropic>=0.30"]
+generate = ["numpy>=1.24", "pandas>=2.0", "scipy>=1.10"]
+dev = ["pytest", "pytest-cov"]
+all = ["anthropic>=0.30", "numpy>=1.24", "pandas>=2.0", "scipy>=1.10", "pytest", "pytest-cov"]
+
+[project.scripts]
+benchmark = "knowlytix.benchmark.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/knowlytix/gms"
+Documentation = "https://github.com/knowlytix/gms#readme"
+Issues = "https://github.com/knowlytix/gms/issues"
+
+[tool.setuptools.packages.find]
+include = ["knowlytix.benchmark*"]
+exclude = ["knowlytix.benchmark.instances.generate_*"]
+
+[tool.setuptools.package-data]
+"knowlytix.benchmark.instances" = ["*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

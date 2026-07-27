@@ -1,0 +1,2 @@
+{"id":"mro1","subject":{"id":"role:mro","name":"model_risk_officer","node_types":["Role"]},"predicate":"uses_tool","object":{"id":"tool:validation_workbench","name":"validation_workbench","node_types":["Tool"]},"verification":{"confidence":0.93,"verifier":"mro-ops-registry"}}
+{"id":"mro2","subject":{"id":"tool:validation_workbench","name":"validation_workbench","node_types":["Tool"]},"predicate":"has_risk_tier","object":{"id":"tier:3","name":"tier_3","node_types":["Tier"]},"verification":{"confidence":0.91,"verifier":"mro-ops-registry"}}

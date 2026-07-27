@@ -1,0 +1,11 @@
+knowlytix/core/__init__.py,sha256=JY1eXSwAG7hZ35ebFicJKXkvvSFEWZ8Xs8WeuCbJR04,470
+knowlytix/core/core.cpython-312-x86_64-linux-gnu.so,sha256=sqxe-RoTvPN9B5XR-kt9uQXEHY1M6-P0gnK-xKhlOZU,3333168
+knowlytix/core/knowlytix-public.pem,sha256=Lln9Cu-5gn9c1q97HJRPjQIWbxhlouRa6yWLR_ZncGw,451
+knowlytix/core/_license_keys/README.md,sha256=2iwHbsCPeKcn7sS5JE5Iqsqo87OVmEJ9jCnQQirMDGE,2637
+knowlytix/core/_license_keys/selfserve.pem,sha256=WKlNQyCdDpfJXgRVNVNd1jVf6Rq-azd_eMvHFTwInwM,451
+knowlytix/embedding/__init__.py,sha256=o_idne29tTzfQx_dyOuDRbiVoPUjAIM4OFWxlb2RXYY,440
+knowlytix/embedding/embedding.cpython-312-x86_64-linux-gnu.so,sha256=36hkNJXFbkgOY7WzYFVBwmB8a011yQXAjcchBO9D5I0,1200848
+knowlytix_core-0.4.0.dist-info/METADATA,sha256=D1w0YC4PwOI8gvbBxDFANMj-Qr3boy50JzXDhVudgrE,15124
+knowlytix_core-0.4.0.dist-info/WHEEL,sha256=ZjTavTxKaKzILtjlI2bluNpLaKvES3VBjwAbUYE9BSE,100
+knowlytix_core-0.4.0.dist-info/licenses/LICENSE.txt,sha256=3zrxpvjStZyR5FqGlsuOpXB397vOCjl7oBhFawoJruk,4577
+knowlytix_core-0.4.0.dist-info/RECORD,,

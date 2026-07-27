@@ -1,0 +1,166 @@
+Metadata-Version: 2.4
+Name: knowlytix-knowledge
+Version: 0.4.0
+Summary: GMS-powered document ingestion, query, and learning — DocGMS
+Project-URL: Homepage, https://github.com/knowlytix/gmsh
+Project-URL: Issues, https://github.com/knowlytix/gmsh/issues
+Author: Agus Sudjianto, Wingyan Lau
+License-Expression: Apache-2.0
+Keywords: document-qa,expert-system,knowledge-graph,llm,rag
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: <3.13,>=3.12
+Requires-Dist: knowlytix-core==0.4.0
+Requires-Dist: litellm>=1.40
+Requires-Dist: numpy>=1.24
+Requires-Dist: pydantic-settings>=2.0
+Requires-Dist: pymupdf>=1.24
+Requires-Dist: transformers>=4.30
+Provides-Extra: kal
+Requires-Dist: knowlytix-kal>=0.14; extra == 'kal'
+Description-Content-Type: text/markdown
+
+# knowlytix-knowledge
+
+> Geometric expert system with LLM-augmented learning. Ingest documents, query
+> a geometric memory back-end, verify LLM answers against provable graph
+> traversals, and grow the store over time.
+
+`knowlytix-knowledge` is one of four packages in the [Geometric Memory Systems][gms-repo]
+family. It pairs a structured geometric knowledge store (`knowlytix-core`) with LLM
+reasoning, and writes verified outputs back into the store so the expert
+system improves with use.
+
+- **Package**: `knowlytix-knowledge`
+- **License**: Apache-2.0
+- **Python**: 3.12+
+- **Status**: alpha (v0.x)
+
+## Install
+
+```bash
+pip install knowlytix-knowledge
+```
+
+`knowlytix-knowledge` depends on [`knowlytix-core`][knowlytix-core-pypi] (pinned `~=0.1.0`
+under lockstep versioning) and routes every LLM call through
+[LiteLLM][litellm] — configure the provider of your choice (Anthropic,
+OpenAI, Bedrock, Azure, Ollama, …) via environment variables.
+
+## Quickstart
+
+Ingest a document, train the geometric store, and run a query end-to-end.
+The snippet below uses the smoke-test fixture shipped in the wheel, so no
+external data is required.
+
+```python
+import torch
+from importlib.resources import files
+
+from knowlytix.knowledge import (
+    DocGMSConfig, GMSExpertStore, QueryEngine,
+    ingest_document,
+)
+from knowlytix.knowledge.llm_backend import create_backend
+
+# 1. Config + LLM backend (reads GMS_LLM_MODEL + provider key from env).
+config = DocGMSConfig(store_path="./my_store")
+llm = create_backend(config.convert)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# 2. Fresh store + ingest the bundled sample document.
+store = GMSExpertStore(config, device=device)
+sample = files("knowlytix.knowledge.fixtures.smoke") / "sample.md"
+ingest_document(store, str(sample), llm, config, device)
+
+# 3. Query the expert system.
+engine = QueryEngine(store, llm, config)
+result = engine.query("Which divisions report to the Chief Operations Officer?")
+print(result.answer)
+print(f"source={result.source} confidence={result.confidence:.2f}")
+```
+
+The first ingestion trains the geometric knowledge graph from the document's
+triples. Subsequent ingestions grow the store incrementally.
+
+## Configuration
+
+All tuning knobs read from environment variables (12-factor style). Copy
+`.env.example` from the repo and override only what you need.
+
+### `DOCGMS_*` — ingestion and verification
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `DOCGMS_MAX_PAGES` | `1000` | Per-document page ceiling for PDF ingestion. |
+| `DOCGMS_CHUNK_SIZE` | `2048` | Token budget per chunk sent to the LLM. |
+| `DOCGMS_N_STEPS` | `8` | Reasoning steps the verifier takes per query. |
+| `DOCGMS_FREEZE_EXISTING` | `false` | If `true`, ingestion never overwrites existing nodes. |
+| `DOCGMS_CONTRADICTION_GATE` | `true` | Reject LLM outputs that contradict the current store. |
+| `DOCGMS_AUTO_LEARN` | `true` | Persist verified LLM outputs back into the store. |
+| `DOCGMS_STORE_PATH` | `./docgms_store` | Default on-disk store location. |
+
+### `GMS_LLM_*` — LLM routing (from `knowlytix-core`)
+
+| Variable | Meaning |
+|---|---|
+| `GMS_LLM_MODEL` | Base LiteLLM model string (e.g. `anthropic/claude-opus-4-6`, `openai/gpt-4o-mini`, `ollama/llama3`). Required unless overridden per-purpose. |
+| `GMS_LLM_MODEL_JUDGE` | Override for verifier / judge calls. |
+| `GMS_LLM_MODEL_SCORER` | Override for scoring. |
+| `GMS_LLM_TIMEOUT_SECONDS` | Per-call timeout. Default `60`. |
+| `GMS_LLM_MAX_RETRIES` | Retry count on transient provider errors. Default `2`. |
+| `GMS_LLM_TEMPERATURE` | Sampling temperature. Default `0.0`. |
+
+### Provider API keys
+
+Set exactly one set, matching your `GMS_LLM_MODEL`:
+
+- Anthropic: `ANTHROPIC_API_KEY`
+- OpenAI: `OPENAI_API_KEY`
+- Bedrock: `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` + `AWS_REGION`
+- Azure: `AZURE_API_KEY` + `AZURE_API_BASE` + `AZURE_API_VERSION`
+- Ollama: `OLLAMA_BASE_URL` (no key — runs locally)
+
+Missing keys surface an actionable `LLMConfigError` naming the exact env vars
+required for your selected model.
+
+## Public API
+
+Import from the top-level package (see `__all__`):
+
+```python
+from knowlytix.knowledge import (
+    ConvertConfig, DocGMSConfig, DocGMSSettings,
+    GMSExpertStore, IngestResult, QueryEngine, QueryResult,
+    ingest_document,
+)
+```
+
+Anything outside `__all__` is internal and may change without notice. The
+non-shipped `knowlytix.knowledge.mcp_server`, `knowlytix.knowledge.web_agent`,
+and `knowlytix.knowledge.cli` modules live in the source repo but do **not**
+land in the wheel.
+
+## Related packages
+
+| Package | Role |
+|---|---|
+| [`knowlytix-core`][knowlytix-core-pypi] | Geometric memory engine (required runtime dep) |
+| [`knowlytix-benchmark`][knowlytix-benchmark-pypi] | Benchmark harness for structured retrieval |
+| [`knowlytix-harness`][knowlytix-harness-pypi] | DOE-driven black-box testing + runtime governance |
+
+## Links
+
+- Source: [knowlytix/gmsh][gms-repo]
+- Book: _Geometric Memory Systems_ (forthcoming)
+- Paper: _DocGMS: Geometric Expert Systems with LLM-Augmented Learning_
+
+[gms-repo]: https://github.com/knowlytix/gmsh
+[knowlytix-core-pypi]: https://pypi.org/project/knowlytix-core/
+[knowlytix-benchmark-pypi]: https://pypi.org/project/knowlytix-benchmark/
+[knowlytix-harness-pypi]: https://pypi.org/project/knowlytix-harness/
+[litellm]: https://docs.litellm.ai/

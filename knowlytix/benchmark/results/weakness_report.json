@@ -1,0 +1,437 @@
+{
+  "instance": "weakness_report",
+  "total": 30,
+  "gms_score": 30,
+  "llm_score": 0,
+  "model": "claude-sonnet-4-20250514",
+  "timestamp": "2026-03-27 18:17:09",
+  "graph_stats": {
+    "enm_entries": 261,
+    "enm_types": {
+      "model_accuracy": 21,
+      "fanova_feature_importance": 7,
+      "fanova_effect_importance_main__interactions": 17,
+      "fanova_main_effect_curves": 14,
+      "amif_weakness_regions": 12,
+      "rf_proximity_clustering_residual_clusters": 22,
+      "residual_interpretation_fanova_on_errors": 24,
+      "slicing_accuracy_performance_by_segment": 96,
+      "global_fairness_air": 2,
+      "resolution_xgbdepth2monoresolved": 46
+    },
+    "triples": 5586,
+    "relations": {
+      "has_shape": 1,
+      "has_features": 1,
+      "has_target": 1,
+      "has_protected": 1,
+      "has_train_size": 1,
+      "has_architecture": 1,
+      "has_monotonic_constraints": 2,
+      "has_auc": 67,
+      "has_acc": 6,
+      "has_f1": 6,
+      "has_logloss": 6,
+      "has_precision": 6,
+      "has_recall": 6,
+      "has_brier": 6,
+      "in_section": 1654,
+      "has_score": 14,
+      "has_importance": 55,
+      "has_value": 1400,
+      "has_effect": 1400,
+      "has_weak_samples": 2,
+      "has_weak_fraction_threshold": 1,
+      "has_weak_bins": 1,
+      "has_js_divergence": 7,
+      "has_geometry_bin": 100,
+      "has_mi_bin": 100,
+      "has_sample_count": 100,
+      "passes": 101,
+      "is_strong": 101,
+      "has_auc_(train)": 97,
+      "has_auc_(test)": 94,
+      "fails": 34,
+      "is_weak": 34,
+      "has_size": 70,
+      "has_abs_residual": 5,
+      "has_threshold": 35,
+      "has_segment": 65,
+      "has_race": 2,
+      "has_gender": 2,
+      "has_strategy": 1
+    },
+    "phase_encoders": [
+      "AUC",
+      "accuracy",
+      "AIR",
+      "importance",
+      "divergence",
+      "loss"
+    ]
+  },
+  "by_category": {
+    "exact_recall": {
+      "gms": 5,
+      "llm": 0,
+      "total": 5
+    },
+    "threshold": {
+      "gms": 5,
+      "llm": 0,
+      "total": 5
+    },
+    "cross_reference": {
+      "gms": 5,
+      "llm": 0,
+      "total": 5
+    },
+    "contradiction": {
+      "gms": 5,
+      "llm": 0,
+      "total": 5
+    },
+    "multi_hop": {
+      "gms": 5,
+      "llm": 0,
+      "total": 5
+    },
+    "counting": {
+      "gms": 5,
+      "llm": 0,
+      "total": 5
+    }
+  },
+  "questions": [
+    {
+      "qid": "exact_recall_057",
+      "category": "exact_recall",
+      "question": "What is the exact value of 'Utilization/Value' (category: fanova_main_effect_curves)?",
+      "ground_truth": "0.999832",
+      "gms_answer": "0.999832",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "exact_recall_012",
+      "category": "exact_recall",
+      "question": "What is the exact value of 'row_1/Recall' (category: model_accuracy)?",
+      "ground_truth": "0.897802",
+      "gms_answer": "0.897802",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "exact_recall_140",
+      "category": "exact_recall",
+      "question": "What is the exact value of 'Balance/[0.37, 0.55)/Size' (category: slicing_accuracy_performance_by_segment)?",
+      "ground_truth": "62.0",
+      "gms_answer": "62.0",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "exact_recall_125",
+      "category": "exact_recall",
+      "question": "What is the exact value of 'Mortgage/[0.13, 0.25)/Threshold' (category: slicing_accuracy_performance_by_segment)?",
+      "ground_truth": "0.574001",
+      "gms_answer": "0.574001",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "exact_recall_114",
+      "category": "exact_recall",
+      "question": "What is the exact value of 'Inquiry & Open Trade' (category: residual_interpretation_fanova_on_errors)?",
+      "ground_truth": "0.0142574",
+      "gms_answer": "0.0142574",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "threshold_163",
+      "category": "threshold",
+      "question": "Does 'Open Trade/[0.80, 1.00]/Threshold' (slicing_accuracy_performance_by_segment) meet better than random? Is its value at least 0.5?",
+      "ground_truth": "True",
+      "gms_answer": "True",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "threshold_028",
+      "category": "threshold",
+      "question": "Does 'Inquiry' (fanova_feature_importance) meet significance (>= 0.1)? Is its value at least 0.1?",
+      "ground_truth": "False",
+      "gms_answer": "False",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "threshold_006",
+      "category": "threshold",
+      "question": "Does 'row_0/Recall' (model_accuracy) meet better than random? Is its value at least 0.5?",
+      "ground_truth": "True",
+      "gms_answer": "True",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "threshold_189",
+      "category": "threshold",
+      "question": "Does 'Resolved Accuracy/F1' (resolution_xgbdepth2monoresolved) meet better than random? Is its value at least 0.5?",
+      "ground_truth": "False",
+      "gms_answer": "False",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "threshold_070",
+      "category": "threshold",
+      "question": "Does 'Mortgage/[0.13, 0.25)/Size' (slicing_accuracy_performance_by_segment) meet better than random? Is its value at least 0.5?",
+      "ground_truth": "True",
+      "gms_answer": "True",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "cross_reference_040",
+      "category": "cross_reference",
+      "question": "Which entities appear in both the 'has_score' and 'has_importance' relationships?",
+      "ground_truth": "{'Inquiry', 'Balance', 'Utilization', 'Delinquency', 'Mortgage', 'Open Trade', 'Amount Past Due'}",
+      "gms_answer": "{'Inquiry', 'Balance', 'Utilization', 'Delinquency', 'Mortgage', 'Open Trade', 'Amount Past Due'}",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "cross_reference_007",
+      "category": "cross_reference",
+      "question": "Which entities appear in both the 'has_auc' and 'has_importance' relationships?",
+      "ground_truth": "{'Inquiry', 'Balance', 'Utilization', 'Delinquency', 'Mortgage', 'Open Trade', 'Amount Past Due'}",
+      "gms_answer": "{'Inquiry', 'Balance', 'Utilization', 'Delinquency', 'Mortgage', 'Open Trade', 'Amount Past Due'}",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "cross_reference_001",
+      "category": "cross_reference",
+      "question": "Which entities appear in both the 'has_auc' and 'has_f1' relationships?",
+      "ground_truth": "{'row_0', 'row_2', 'Resolved Accuracy', 'row_1'}",
+      "gms_answer": "{'row_0', 'row_2', 'Resolved Accuracy', 'row_1'}",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "cross_reference_047",
+      "category": "cross_reference",
+      "question": "Which entities appear in both the 'has_importance' and 'has_threshold' relationships?",
+      "ground_truth": "{'Inquiry', 'Balance', 'Utilization', 'Delinquency', 'Mortgage', 'Open Trade', 'Amount Past Due'}",
+      "gms_answer": "{'Inquiry', 'Balance', 'Utilization', 'Delinquency', 'Mortgage', 'Open Trade', 'Amount Past Due'}",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "cross_reference_017",
+      "category": "cross_reference",
+      "question": "Which entities appear in both the 'has_acc' and 'has_brier' relationships?",
+      "ground_truth": "{'row_0', 'row_2', 'Resolved Accuracy', 'row_1'}",
+      "gms_answer": "{'row_0', 'row_2', 'Resolved Accuracy', 'row_1'}",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "contradiction_001",
+      "category": "contradiction",
+      "question": "Which features have contradictory performance across segments?",
+      "ground_truth": "{'weakness_regions_Weakness Region Grid'}",
+      "gms_answer": "{'weakness_regions_Weakness Region Grid'}",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "contradiction_000",
+      "category": "contradiction",
+      "question": "How many features have contradictory performance \u2014 passing in some segments but failing in others?",
+      "ground_truth": "1",
+      "gms_answer": "1",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "contradiction_004",
+      "category": "contradiction",
+      "question": "Does 'accuracy_performance_by_segment_Delinquency' have contradictory performance across segments?",
+      "ground_truth": "False",
+      "gms_answer": "False",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "contradiction_009",
+      "category": "contradiction",
+      "question": "Does 'weakness_regions_Weakness Region Grid' have contradictory performance across segments?",
+      "ground_truth": "True",
+      "gms_answer": "True",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "contradiction_006",
+      "category": "contradiction",
+      "question": "Does 'accuracy_performance_by_segment_Mortgage' have contradictory performance across segments?",
+      "ground_truth": "False",
+      "gms_answer": "False",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "multi_hop_081",
+      "category": "multi_hop",
+      "question": "Find the entity with the lowest 'slicing_accuracy_performance_by_segment' value. Then look up that entity's 'rf_proximity_clustering_residual_clusters' data.",
+      "ground_truth": "('Inquiry', 0.0, {'Inquiry': 0.00685756})",
+      "gms_answer": "('Inquiry', 0.0, {'Inquiry': 0.00685756})",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "multi_hop_014",
+      "category": "multi_hop",
+      "question": "Which entry has the highest value in 'slicing_accuracy_performance_by_segment', and what is that value?",
+      "ground_truth": "('Inquiry/[0.00, 0.20)/Size', 6493.0)",
+      "gms_answer": "('Inquiry/[0.00, 0.20)/Size', 6493.0)",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "multi_hop_003",
+      "category": "multi_hop",
+      "question": "Which entry has the highest value in 'fanova_feature_importance', and what is that value?",
+      "ground_truth": "('Open Trade', 0.981082)",
+      "gms_answer": "('Open Trade', 0.981082)",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "multi_hop_035",
+      "category": "multi_hop",
+      "question": "Find the entity with the highest 'fanova_effect_importance_main__interactions' value. Then look up that entity's 'fanova_feature_importance' data.",
+      "ground_truth": "('Open Trade', 0.922335, {'Open Trade': 0.981082})",
+      "gms_answer": "('Open Trade', 0.922335, {'Open Trade': 0.981082})",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "multi_hop_031",
+      "category": "multi_hop",
+      "question": "Find the entity with the highest 'fanova_feature_importance' value. Then look up that entity's 'slicing_accuracy_performance_by_segment' data.",
+      "ground_truth": "('Open Trade', 0.981082, {'Open Trade/[0.20, 0.40)/Size': 127.0, 'Open Trade/[0.20, 0.40)/AUC': 0.363657, 'Open Trade/[0.20, 0.40)/Threshold': 0.574001, 'Open Trade/[0.00, 0.20)/Size': 6453.0, 'Open Trade/[0.00, 0.20)/AUC': 0.558421, 'Open Trade/[0.00, 0.20)/Threshold': 0.574001, 'Open Trade/[0.40, 0.60)/Size': 16.0, 'Open Trade/[0.40, 0.60)/Threshold': 0.574001, 'Open Trade/[0.60, 0.80)/Size': 2.0, 'Open Trade/[0.60, 0.80)/Threshold': 0.574001, 'Open Trade/[0.80, 1.00]/Size': 2.0, 'Open Trade/[0.80, 1.00]/Threshold': 0.574001})",
+      "gms_answer": "('Open Trade', 0.981082, {'Open Trade/[0.20, 0.40)/Size': 127.0, 'Open Trade/[0.20, 0.40)/AUC': 0.363657, 'Open Trade/[0.20, 0.40)/Threshold': 0.574001, 'Open Trade/[0.00, 0.20)/Size': 6453.0, 'Open Trade/[0.00, 0.20)/AUC': 0.558421, 'Open Trade/[0.00, 0.20)/Threshold': 0.574001, 'Open Trade/[0.40, 0.60)/Size': 16.0, 'Open Trade/[0.40, 0.60)/Threshold': 0.574001, 'Open Trade/[0.60, 0.80)/Size': 2.0, 'Open Trade/[0.60, 0.80)/Threshold': 0.574001, 'Open Trade/[0.80, 1.00]/Size': 2.0, 'Open Trade/[0.80, 1.00]/Threshold': 0.574001})",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "counting_040",
+      "category": "counting",
+      "question": "How many unique entities participate in 'has_importance' relationships?",
+      "ground_truth": "24",
+      "gms_answer": "24",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "counting_007",
+      "category": "counting",
+      "question": "How many 'has_brier' relationships exist in the report?",
+      "ground_truth": "6",
+      "gms_answer": "6",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "counting_001",
+      "category": "counting",
+      "question": "How many 'has_auc' relationships exist in the report?",
+      "ground_truth": "67",
+      "gms_answer": "67",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "counting_047",
+      "category": "counting",
+      "question": "How many unique entities participate in 'has_abs_residual' relationships?",
+      "ground_truth": "5",
+      "gms_answer": "5",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    },
+    {
+      "qid": "counting_017",
+      "category": "counting",
+      "question": "How many 'has_auc_(train)' relationships exist in the report?",
+      "ground_truth": "97",
+      "gms_answer": "97",
+      "gms_correct": true,
+      "llm_answer": null,
+      "llm_correct": false,
+      "llm_detail": ""
+    }
+  ]
+}

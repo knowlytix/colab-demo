@@ -1,0 +1,205 @@
+Metadata-Version: 2.4
+Name: knowlytix-kal
+Version: 1.0.0
+Summary: KAL — Knowledge Adapter Layer: a backend-agnostic mesh for knowledge graphs
+Project-URL: Homepage, https://github.com/knowlytix/KAL
+Project-URL: Repository, https://github.com/knowlytix/KAL
+Project-URL: Documentation, https://github.com/knowlytix/KAL/tree/main/docs
+Author: Wing Yan Lau, Budi Surjanto, Agus Sudjianto
+License-Expression: Apache-2.0
+License-File: LICENSE
+Keywords: federation,kal,knowledge adapter layer,knowledge graph,neo4j,postgres,rdf,sparql
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Database
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.12
+Requires-Dist: alembic
+Requires-Dist: cryptography
+Requires-Dist: fastapi
+Requires-Dist: httpx
+Requires-Dist: numpy>=1.26
+Requires-Dist: pgvector>=0.3
+Requires-Dist: pydantic>=2
+Requires-Dist: sqlalchemy[asyncio]>=2
+Provides-Extra: dev
+Requires-Dist: asyncpg; extra == 'dev'
+Requires-Dist: mypy; extra == 'dev'
+Requires-Dist: psycopg2-binary; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.21; extra == 'dev'
+Requires-Dist: pytest>=7; extra == 'dev'
+Requires-Dist: ruff; extra == 'dev'
+Provides-Extra: mcp
+Requires-Dist: mcp<2.0,>=1.10; extra == 'mcp'
+Provides-Extra: neo4j
+Requires-Dist: neo4j<6,>=5; extra == 'neo4j'
+Description-Content-Type: text/markdown
+
+# knowlytix-kal
+
+**KAL — Knowledge Adapter Layer**: a backend-agnostic mesh for knowledge graphs.
+
+KAL is a small typed Python protocol that any knowledge graph can implement (relational store, native graph database, RDF endpoint), plus a federation router that presents many adapters as one logical view. The data crossing the protocol boundary — typed nodes, triples, literals, queries, and query results — carries first-class verification metadata (confidence, status, per-engine scores, evaluator identity), not as opaque payload but as load-bearing fields.
+
+## Status
+
+**v0.14.0 — alpha.**
+
+Concrete backend adapters (Postgres, Wikidata SPARQL, JSONL, in-memory vector node-store, Neo4j property graph), the connection registry, credential management, the MCP server tool surface, MCP-client ingestion (batch + live query-time synthesis), source governance (revoke-by-source / quarantine), and the standalone Alembic migration chain are all in place. See `CHANGELOG.md` for the per-release narrative.
+
+## Install
+
+```bash
+pip install knowlytix-kal
+```
+
+The default install is a pure library — `pydantic>=2` is the only runtime dependency. No FastAPI, no SQLAlchemy, no DB drivers.
+
+## Quick start
+
+```python
+from knowlytix.kal import (
+    AdapterCapabilities,
+    ConflictStrategy,
+    FederationRouter,
+    KALQuery,
+    KALTriple,
+    KnowledgeAdapter,
+)
+from knowlytix.kal.adapters import MockKnowledgeAdapter
+from knowlytix.kal.registry import AdapterRegistry
+
+# Construct an in-memory mock adapter for testing.
+mock = MockKnowledgeAdapter("mock-1")
+
+# Register it on a fresh registry, build a federation router.
+registry = AdapterRegistry()
+registry.register(mock)
+router = FederationRouter(registry)
+
+# Federated query — fans out to every registered adapter.
+result = await router.query_triples(KALQuery())
+print(result.triples)
+print(result.errors)  # per-adapter failures, if any
+```
+
+## Run KAL locally
+
+For a production-shaped Postgres + pgvector backend on your laptop, a
+minimal `docker-compose.yml` ships with this package. The image is
+`pgvector/pgvector:pg17` and credentials are `kal_dev:kal_dev` — dev
+only; never reuse in any non-local context.
+
+```bash
+docker compose up -d postgres
+```
+
+The compose binds host port 5432. If you already run a system Postgres
+on that port, or if you run knowly's own dev compose (which binds 5433
+on the host), this will fail with a bind error — either stop the
+existing service or add a `docker-compose.override.yml` to remap the
+port.
+
+Once the container is healthy (about 25 seconds — `docker compose ps`
+shows `(healthy)`), apply the KAL migrations. The migration runner
+uses the sync Postgres driver, so install the `[dev]` extras (which
+add `psycopg2-binary`) before invoking Alembic:
+
+```bash
+pip install 'knowlytix-kal[dev]'
+
+KAL_DATABASE_URL=postgresql://kal_dev:kal_dev@localhost:5432/kal_dev \
+  alembic -c knowlytix/kal/migrations/alembic.ini upgrade head
+```
+
+The `vector` and `pg_trgm` extensions are enabled on the first
+container start (via `docker/init.sql`) and migration 003 also issues
+`CREATE EXTENSION IF NOT EXISTS` for both — so the same `alembic
+upgrade head` invocation works against managed-Postgres targets that
+don't go through this compose file.
+
+Tear down with `docker compose down` (add `-v` to also drop the data
+volume).
+
+## Expose KAL to an LLM agent via MCP
+
+`knowlytix-kal[mcp]` ships a `KalMcpServer` that wraps a `FederationRouter` and exposes its four read methods (`query_triples`, `get_node`, `query_adjacent_triples`, `search_similar_nodes`) as typed [Model Context Protocol](https://modelcontextprotocol.io/) tools. Read-only by design (paper §3.6).
+
+```bash
+pip install 'knowlytix-kal[mcp]'
+```
+
+**Stdio mode** (local agents — Claude Desktop, Cursor, local CLI agents):
+
+```python
+import asyncio
+from knowlytix.kal import FederationRouter
+from knowlytix.kal.mcp import KalMcpServer
+from knowlytix.kal.registry import AdapterRegistry
+
+registry = AdapterRegistry()
+# … register adapters here …
+router = FederationRouter(registry)
+server = KalMcpServer(router, tenant_id="tenant-a")
+server.run_stdio()  # blocks
+```
+
+**Streamable HTTP mode** (remote agents — hosted-agent platforms, multi-tenant deployments where the MCP client and the KAL server live in different processes / machines):
+
+```python
+import asyncio
+from knowlytix.kal import FederationRouter
+from knowlytix.kal.mcp import KalMcpServer, TokenTenantResolver
+from knowlytix.kal.registry import AdapterRegistry
+
+registry = AdapterRegistry()
+# … register adapters here …
+router = FederationRouter(registry)
+server = KalMcpServer(
+    router,
+    allowed_hosts=["mcp.example.com"],  # DNS-rebinding protection
+)
+resolver = TokenTenantResolver({
+    "<bearer-token-a>": "tenant-a",
+    "<bearer-token-b>": "tenant-b",
+})
+asyncio.run(server.run_http_async(resolver))
+```
+
+Tenant scope is **never** a tool argument — stdio binds the tenant at server construction; HTTP resolves per request from the bearer-token map. Production HTTP deployments should front the server with their own gateway (Cloudflare Access, API gateway, mTLS) for defense in depth; the bearer-token check is the inner-most ring.
+
+**End-to-end walkthrough** with Claude Desktop config snippets, tool reference, and troubleshooting: [`docs/MCP_QUICKSTART.md`](docs/MCP_QUICKSTART.md). A production-shaped reference implementation lives at [`scripts/run_kal_mcp_server.py`](scripts/run_kal_mcp_server.py).
+
+## What's in this package
+
+- `knowlytix.kal.protocol` — the `KnowledgeAdapter` Protocol + `AdapterCapabilities`
+- `knowlytix.kal.types` — `KALTriple`, `KALNode`, `KALLiteral`, `KALQuery`, `KALQueryResult`, `VerificationMetadata`, `TripleProvenance`
+- `knowlytix.kal.federation` — `FederationRouter`, `ConflictStrategy`
+- `knowlytix.kal.registry` — `AdapterRegistry`
+- `knowlytix.kal.errors` — `AdapterError` / `AdapterWriteError` / etc.
+- `knowlytix.kal.tenant_index` — `TenantIndex` for federation tenant scoping
+- `knowlytix.kal.adapters.mock` — `MockKnowledgeAdapter` (test fixture + dev mock)
+- `knowlytix.kal.adapters.jsonl` — `JsonlKnowledgeAdapter` (read-only file-backed triple-store; one `KALTriple` per line)
+- `knowlytix.kal.adapters.vector_node` — `VectorNodeKnowledgeAdapter` (read-only file-backed node-store for cosine similarity; `.jsonl` + `.npy` + `.encoder` files)
+- `knowlytix.kal.adapters.mcp` — `McpKnowledgeAdapter` (read-only live query-time synthesis from an external MCP source; §7.3 Pattern 2). Optional, requires `[mcp]` extras
+- `knowlytix.kal.mcp` — `KalMcpServer` + `TokenTenantResolver` (optional, requires `[mcp]` extras)
+- `knowlytix.kal.sources.mcp` — `McpIngestConnector` + `McpClientSession` + the `ClaimExtractor` seam: consume an *external* MCP server as a data source (pull → extract → typed triples). Optional, requires `[mcp]` extras
+
+## Demos & walkthroughs
+
+- [`notebooks/kal_federation_walkthrough.ipynb`](notebooks/kal_federation_walkthrough.ipynb) — Jupyter walkthrough of registry / federation / partial failure / conflict strategies / §5.8 vertical axis. Mock-only; no Postgres needed.
+- [`docs/MCP_QUICKSTART.md`](docs/MCP_QUICKSTART.md) — wiring KAL into Claude Desktop / Cursor / remote agents over MCP, with tool reference + troubleshooting.
+- [`docs/NEO4J_QUICKSTART.md`](docs/NEO4J_QUICKSTART.md) — projecting a Neo4j property graph through `Neo4jKnowledgeAdapter` (direct, connection registry, federation), with capabilities + limits.
+
+## Documentation
+
+- [`docs/QUICKSTART.md`](docs/QUICKSTART.md) — short tour of the package surface.
+- [`docs/paper/KAL_whitepaper.pdf`](docs/paper/KAL_whitepaper.pdf) — the design specification (§1–§9).
+
+## License
+
+Apache-2.0. See `LICENSE`.

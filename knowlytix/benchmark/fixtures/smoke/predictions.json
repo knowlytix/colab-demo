@@ -1,0 +1,11 @@
+{
+  "$schema": "finstructbench smoke fixture v1",
+  "description": "Matching predictions for questions.json; crafted so the scorer exercises both match and mismatch branches.",
+  "predictions": [
+    {"id": "smoke-001", "answer": "$35.0M"},
+    {"id": "smoke-002", "answer": "0.005"},
+    {"id": "smoke-003", "answer": "Industrial Widgets"},
+    {"id": "smoke-004", "answer": "4"},
+    {"id": "smoke-005", "answer": "no"}
+  ]
+}

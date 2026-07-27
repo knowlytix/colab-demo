@@ -1,0 +1,20 @@
+{
+  "title": "Consumer Credit Risk Primer (demo)",
+  "source": "knowlytix-demo-corpus",
+  "n_pages": 3,
+  "summary": "A three-page primer on consumer credit-risk concepts: credit scores, debt-to-income, collateral, and how they drive default risk. Pre-ingested for the keyless demo; loading your own documents requires a license.",
+  "entities": [
+    "Borrower",
+    "CreditScore",
+    "DebtToIncome",
+    "LoanAmount",
+    "Collateral",
+    "DefaultRisk",
+    "Income",
+    "Delinquency",
+    "Mortgage",
+    "InterestRate",
+    "Underwriting",
+    "FICO"
+  ]
+}

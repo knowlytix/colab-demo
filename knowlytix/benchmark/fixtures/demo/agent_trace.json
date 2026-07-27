@@ -1,0 +1,23 @@
+{
+  "prompt": "<report>\nBorrower A has a FICO of 720 and a debt-to-income ratio of 0.28.\n</report>\n\nAnswer the following question using the report.\n\nIs borrower A's debt-to-income ratio below the 0.36 underwriting threshold?",
+  "answer": "Borrower A has a FICO of 720 and a debt-to-income ratio of 0.28.",
+  "tool_records": [
+    {
+      "tool": "recall_memory",
+      "args": {
+        "query": "Is borrower A's debt-to-income ratio below the 0.36 underwriting threshold?"
+      },
+      "result": "Borrower A has a FICO of 720 and a debt-to-income ratio of 0.28.",
+      "blocked": false
+    },
+    {
+      "tool": "calculate",
+      "args": {
+        "expression": "1 + 1",
+        "context_values": {}
+      },
+      "result": "Result: 2",
+      "blocked": false
+    }
+  ]
+}

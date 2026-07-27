@@ -1,0 +1,348 @@
+Metadata-Version: 2.4
+Name: knowlytix-core
+Version: 0.4.0
+Summary: Geometric Memory Systems — core geometry and LLM-layer foundations
+Project-URL: Homepage, https://github.com/knowlytix/gmsh
+Project-URL: Issues, https://github.com/knowlytix/gmsh/issues
+Author: Agus Sudjianto, Wingyan Lau
+License-Expression: LicenseRef-Knowlytix-GMS-EULA
+License-File: LICENSE.txt
+Keywords: clifford-algebra,geometric-memory,hypersphere,knowledge-graph,llm
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Financial and Insurance Industry
+Classifier: Intended Audience :: Science/Research
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: <3.13,>=3.12
+Requires-Dist: litellm>=1.40
+Requires-Dist: numpy>=1.24
+Requires-Dist: omegaconf>=2.3
+Requires-Dist: pydantic-settings>=2.0
+Requires-Dist: pyjwt[crypto]>=2.8
+Requires-Dist: scipy>=1.10
+Requires-Dist: torch>=2.0
+Description-Content-Type: text/markdown
+
+# knowlytix-core
+
+> **Commercial** geometric memory engine. Hyperspherical knowledge graphs,
+> Clifford-algebra primitives, and centralized LLM configuration — the
+> foundation every other Geometric Memory Systems package depends on.
+
+`knowlytix-core` is the proprietary runtime for the [Geometric Memory
+Systems][gms-repo] product family. The framework packages (`knowlytix-knowledge`,
+`knowlytix-benchmark`, `knowlytix-harness`) are open-source under Apache-2.0;
+`knowlytix-core` ships as obfuscated binary under a commercial EULA because
+it contains Knowlytix's core geometric algorithms.
+
+- **Package**: `knowlytix-core`
+- **License**: `LicenseRef-Knowlytix-GMS-EULA` (see `LICENSE.txt` in the wheel)
+- **Python**: 3.12+
+- **Distribution**: per-platform compiled wheels (Linux x86_64, macOS arm64,
+  macOS x86_64). No Python source — compiled `.so` / `.dylib` only.
+- **Status**: alpha (v0.x)
+
+## Licensing tiers
+
+| Tier | Who | How to get a key |
+|---|---|---|
+| **Demo** (keyless) | Anyone — instant eval, built-in fixtures only | No key needed; `pip install` and go |
+| **Developer** (180 days) | Individuals using their own data, non-commercial | Self-serve at knowlytix.ai/signup |
+| **Enterprise** (365 days) | Commercial deployment | Contact hello@knowlytix.ai |
+
+Every `import knowlytix.core` verifies a signed JWT license key at module
+load time. With **no key present**, it drops to keyless **demo** mode
+(built-in fixtures only) rather than failing — so `pip install` runs out of
+the box. A key that IS present but expired or tampered fails closed with an
+actionable `LicenseError`. No telephone-home, no network calls —
+verification is purely local against the embedded public key.
+
+## Install
+
+```bash
+pip install knowlytix-core
+```
+
+The wheel bundles all geometric-engine artifacts. PyTorch (`torch>=2.0`) is a
+runtime dep and installs automatically; on CUDA systems the GPU build is
+selected, on CPU-only systems the CPU build is used.
+
+## Configure your license
+
+Two supported sources, checked in precedence order:
+
+1. `KNOWLYTIX_LICENSE_KEY` environment variable — suits CI, containers, ephemeral shells.
+2. `~/.knowlytix/license.key` file (single-line JWT) — suits workstations; set once, no shell config to maintain.
+
+```bash
+# Option A — environment variable (wins if both are set)
+export KNOWLYTIX_LICENSE_KEY=gmsh_live_eyJhbGciOiJSUzI1NiIsInR...
+
+# Option B — file (used when the env var is unset / empty)
+mkdir -p ~/.knowlytix
+echo "gmsh_live_eyJhbGciOiJSUzI1NiIsInR..." > ~/.knowlytix/license.key
+chmod 600 ~/.knowlytix/license.key
+
+# First import runs the verifier (banner prints to stderr)
+python -c "import knowlytix.core" 2>&1
+# → "knowlytix-core v0.1.0 licensed to customer=acme-corp tier=enterprise expires=2026-12-31"
+# → "By using this software you agree to https://knowlytix.ai/eula (suppress: set KNOWLYTIX_EULA_ACCEPTED=1 or touch ~/.knowlytix/eula-accepted)."
+```
+
+The second line is an EULA reminder printed on every import until suppressed. To silence it once you've read the EULA:
+
+```bash
+export KNOWLYTIX_EULA_ACCEPTED=1         # shell / CI / container — preferred for one-shot environments
+touch ~/.knowlytix/eula-accepted          # workstation — preferred when you'll import often
+```
+
+Either source suppresses the reminder; the license banner itself still prints.
+
+To silence **all** startup output — banner, EULA reminder, and demo
+disclaimer — set `KNOWLYTIX_QUIET=1`. This is handy in Jupyter notebooks,
+where stderr renders as a red output cell. Quiet mode only skips the
+printing; license verification still runs exactly as before.
+
+```bash
+export KNOWLYTIX_QUIET=1
+```
+
+A key that's present but bad surfaces an actionable error (a *missing* key
+drops to demo mode instead — see the next section):
+
+- *Expired*: `LicenseError: license expired 2025-06-01. Renew at
+  knowlytix.ai/renew.`
+- *Malformed / tampered*: `LicenseError: signature verification failed.`
+
+## Demo mode (the keyless default)
+
+With **no license key present**, `knowlytix.core` runs in demo mode
+automatically — `pip install` then `import knowlytix.core` just works, no
+key required. You can also force it explicitly with ``KNOWLYTIX_DEMO_MODE=1``
+(e.g. to ignore a key that's already installed).
+
+```bash
+export KNOWLYTIX_DEMO_MODE=1
+# Optional — silence the EULA reminder on every import:
+# export KNOWLYTIX_EULA_ACCEPTED=1
+
+python -c "import knowlytix.core"
+# → "knowlytix-core v0.1.0 licensed to customer=demo-mode@knowlytix.ai tier=demo expires=9999-12-31"
+# → "By using this software you agree to https://knowlytix.ai/eula (suppress: set KNOWLYTIX_EULA_ACCEPTED=1 or touch ~/.knowlytix/eula-accepted)."
+# → "Demo mode: read-only. Writes, ingestion, training, and outbound LLM calls are disabled; bundled fixtures load normally. Get a license at https://knowlytix.ai/signup."
+```
+
+What works in demo mode:
+
+- Import + read bundled fixtures from ``knowlytix.benchmark.fixtures.demo``
+- Run `MockHarness` / `FullMockHarness` from `knowlytix.harness.fixtures`
+- Score pre-generated benchmark questions via `knowlytix.benchmark.score_answer`
+- `DemoLLMClient` stands in for `get_llm()` — returns canned responses for
+  prompts bundled in the demo fixtures and a clearly-labeled placeholder
+  for anything else; **no outbound network calls**
+
+What raises `DemoModeError`:
+
+- `ingest_document` and any licensed write path
+- Training / novel generation
+- Real LLM calls through a configured provider (falls back to `DemoLLMClient`)
+
+Try it: the `knowlytix-harness` wheel ships a keyless quickstart notebook at
+`knowlytix/harness/demo/demo_quickstart.ipynb` (resolve its path with
+`python -c "from knowlytix.harness.demo import notebook_path; print(notebook_path())"`)
+that runs end-to-end with no key and no API key against the bundled
+credit-risk demo corpus.
+
+Upgrade path: remove `KNOWLYTIX_DEMO_MODE=1`, install a real license key
+(env var or `~/.knowlytix/license.key`), and the same notebooks run
+end-to-end against real data and real LLM calls. No code changes required.
+
+## What your license controls
+
+Every license carries a signed `caps` envelope that puts **ceilings** on
+eight runtime knobs.  The ceiling rule is the single contract the
+library enforces: **env vars can tighten limits, not loosen licensed
+ceilings.**  Clamps are observable — every time a cap bites, an INFO
+log line to `gms.license` names the knob, the requested value, and the
+applied cap.
+
+| Claim | Bound setting | Demo | Developer | Enterprise |
+|---|---|---|---|---|
+| `max_dataset_entities` | `GeometricKnowledgeGraph.__init__` size | 50 | 20,000 | **unlimited** |
+| `max_memory_slots` | `MemoryConfig.enm_capacity` | 100 | 5,000 | **unlimited** |
+| `max_training_epochs` | `GMSCoreSettings.train_epochs` | 0 | 200 | **unlimited** |
+| `max_document_pages` | `DocGMSSettings.max_pages` | 10 | 200 | **unlimited** |
+| `max_benchmark_runs` | `GMSHSettings.doe_n_runs` | 2 | 32 | **unlimited** |
+| `max_workers` | `GMSHSettings.max_workers` | 1 | 2 | **unlimited** |
+| `enable_advanced_features` | every `GMSHSettings.enable_*` flag | `false` | `false` | `true` |
+| `allow_custom_thresholds` | `GMSCoreSettings.tau_*` | `false` | `true` | `true` |
+
+Precedence (numeric claims):
+
+```
+runtime_value = min(customer_env_var or package_default, license_cap)
+```
+
+A developer key with `GMS_TRAIN_EPOCHS=500` runs with `train_epochs=200`; an
+enterprise key with the same env var runs with `train_epochs=500` (cap
+is `"unlimited"` — a true no-op).  The license never forces a value
+upward: an unset env var stays at the package default, clamped only if
+that default itself exceeds the cap.
+
+Two boolean claims are **setter-shaped** — they reset user config
+rather than clamping (thresholds have no natural ordering to clamp):
+
+- `allow_custom_thresholds: false` forces `tau_ent`, `tau_contra`, and
+  `tau_path` back to their Pydantic defaults, ignoring any `GMS_TAU_*`
+  env var.
+- `enable_advanced_features: false` forces every `GMSH_ENABLE_*` env
+  var to `False` regardless of user setting.
+
+## Configure LLM providers
+
+`knowlytix-core` exposes the centralized LLM layer every other package in
+the family consumes. Configure it once here and all dependent packages pick it up.
+
+```bash
+# Pick any LiteLLM-supported model:
+export GMS_LLM_MODEL=anthropic/claude-opus-4-6    # or openai/gpt-4o-mini, etc.
+export ANTHROPIC_API_KEY=sk-ant-...                # provider-specific key
+```
+
+Supported providers (via [LiteLLM][litellm]):
+
+- **Anthropic** — `ANTHROPIC_API_KEY`
+- **OpenAI** — `OPENAI_API_KEY`
+- **Google Gemini** — `GEMINI_API_KEY`
+- **AWS Bedrock** — `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`
+- **Azure OpenAI** — `AZURE_API_KEY`, `AZURE_API_BASE`, `AZURE_API_VERSION`
+- **Mistral** — `MISTRAL_API_KEY`
+- **Cohere** — `COHERE_API_KEY`
+- **Together AI** — `TOGETHER_API_KEY`
+- **Ollama (local)** — `OLLAMA_BASE_URL` (no API key required)
+
+See the `.env.example` template at [knowlytix/gmsh][gms-repo] for the
+complete reference.
+
+## Minimal example
+
+```python
+import knowlytix.core                                      # triggers license check + banner
+from knowlytix.core import GMSCoreSettings, get_llm, ModelPurpose
+
+settings = GMSCoreSettings()                              # reads GMS_* env vars
+client = get_llm(ModelPurpose.DEFAULT)                    # LLMClient ready to call
+reply = client.complete([{"role": "user", "content": "Hello."}])
+print(reply)
+```
+
+(`import gms` is also accepted as a backwards-compatibility shim for code
+written against the pre-Phase-4.8 namespace; new code should import from
+`knowlytix.core` directly.)
+
+The full framework sits on top:
+
+```python
+from knowlytix.knowledge import GMSExpertStore, ingest_document  # knowlytix-knowledge consumer
+from knowlytix.benchmark import Benchmark                        # knowlytix-benchmark consumer
+from knowlytix.harness.testing import DOEGMSBenchmark            # knowlytix-harness consumer
+```
+
+## What's in the wheel
+
+Compiled geometric primitives only — every module is a native binary:
+
+- `knowlytix.core.config` — Settings classes (`GMSCoreSettings`, legacy dataclasses)
+- `knowlytix.core.llm` — LLM client, purpose-routed config, error types
+- `knowlytix.core.geometry` — Clifford algebra, hyperspherical ops, Cayley tables
+- `knowlytix.core.graph` — geometric knowledge graph primitives
+- `knowlytix.core.losses` — geometric loss functions
+- `knowlytix.core.memory` — exact-numerical memory + eviction policies
+- `knowlytix.core.optim` — Riemannian optimizers
+
+`__all__` declares the committed-to-stability public symbols. Anything else
+is internal and may change without notice.
+
+## What's **not** here
+
+- **Python sources** — distributed as compiled binaries; `.py` files are stripped.
+- **Training utilities** — `knowlytix.core.train_finstructbench` ships in
+  the source repo only, not the wheel.
+- **Research fixtures** — live in the `knowlytix-benchmark` wheel.
+
+## FAQ
+
+**"My env var is being ignored."**
+
+Most likely you've hit a license cap.  Run your command with
+`PYTHONLOGGINGLEVEL=INFO` (or point your logging config at the
+`gms.license` logger) and look for a line shaped like:
+
+```
+license cap: train_epochs clamped 500 → 200
+```
+
+That tells you the knob, the value you asked for, and the ceiling your
+license enforces.  To get headroom, upgrade to a tier whose cap covers
+your value — see the table in §"What your license controls" above.
+
+For the two setter-shaped booleans (`allow_custom_thresholds` and
+`enable_advanced_features`), a `false` license claim doesn't just clamp
+— it resets the knob to its package default (for `tau_*`) or forces
+`False` (for `enable_*`).  Your env var is still being *read*; the
+license is overriding it.
+
+**"I upgraded to enterprise — do I need to change my code?"**
+
+No.  Replace `KNOWLYTIX_LICENSE_KEY` with the new key, restart the process,
+and every cap that was clamping will lift.  The public API is
+unchanged; `GMSCoreSettings().train_epochs` (from `knowlytix.core.config`)
+now reflects whatever env-var value you've set (instead of the developer
+ceiling).
+
+**"Can I request custom caps on an enterprise contract?"**
+
+Yes.  Tell your Knowlytix account contact which cap you need (higher or
+lower than the enterprise default) and we'll issue a key with an
+override applied.  Overrides can only **tighten** — e.g. an enterprise
+key whose contract limits `max_workers` to 8 even though the enterprise
+template is "unlimited".  Loosening (raising developer caps above the
+developer template, flipping booleans the license withholds) requires
+moving to a higher tier.
+
+## Commercial terms (summary)
+
+Full terms in `LICENSE.txt`. Brief summary (non-binding):
+
+- Single-tier licence covers the named customer per signed key.
+- No reverse engineering, decompilation, or disassembly of the compiled
+  artifacts.
+- Developer tier (and keyless demo) restricts use to non-commercial work;
+  commercial deployment requires an Enterprise key.
+- Developer keys expire 180 days after issue; all licences visibly marked.
+- Redistribution of the wheel requires written permission.
+
+Not a substitute for reading `LICENSE.txt` before deployment.
+
+## Related packages (Apache-2.0 frameworks)
+
+| Package | Role |
+|---|---|
+| [`knowlytix-knowledge`][knowlytix-knowledge-pypi] | Document ingest + query front-end |
+| [`knowlytix-benchmark`][knowlytix-benchmark-pypi] | Structured-retrieval benchmark |
+| [`knowlytix-harness`][knowlytix-harness-pypi] | DOE black-box testing harness + runtime governance |
+
+## Links
+
+- Signup & pricing: [knowlytix.ai][site]
+- Source (framework packages): [knowlytix/gmsh][gms-repo]
+- Book: _Geometric Memory Systems_ (forthcoming)
+- Support: hello@knowlytix.ai
+
+[gms-repo]: https://github.com/knowlytix/gmsh
+[knowlytix-knowledge-pypi]: https://pypi.org/project/knowlytix-knowledge/
+[knowlytix-benchmark-pypi]: https://pypi.org/project/knowlytix-benchmark/
+[knowlytix-harness-pypi]: https://pypi.org/project/knowlytix-harness/
+[litellm]: https://docs.litellm.ai/
+[site]: https://knowlytix.ai

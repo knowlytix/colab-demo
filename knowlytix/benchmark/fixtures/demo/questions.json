@@ -1,0 +1,26 @@
+[
+  {
+    "id": "cr-001",
+    "question": "Which metric most directly measures a borrower's creditworthiness?",
+    "ground_truth": "CreditScore",
+    "demo_answer": "CreditScore"
+  },
+  {
+    "id": "cr-002",
+    "question": "A high debt-to-income ratio increases the risk of what outcome?",
+    "ground_truth": "Delinquency",
+    "demo_answer": "Delinquency"
+  },
+  {
+    "id": "cr-003",
+    "question": "What is the standard FICO-equivalent score field called in the KG?",
+    "ground_truth": "FICO",
+    "demo_answer": "FICO"
+  },
+  {
+    "id": "cr-004",
+    "question": "If a loan's collateral coverage ratio is 1.25, report it as a float.",
+    "ground_truth": 1.25,
+    "demo_answer": 1.25
+  }
+]
