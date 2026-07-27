@@ -2,8 +2,9 @@
 
 Runnable examples for the KnowlytiX Knowledge Abstraction Layer (KAL),
 Geometric Memory System (GMS), knowledge tooling, and benchmark utilities.
-The repository is packaged as one installable Python project so a Colab
-runtime can install the complete demo environment directly from GitHub.
+The repository can contain multiple demos. Each notebook declares its own
+dependency extra, so you install only the dependencies needed for the notebook
+you want to run.
 
 ## Repository layout
 
@@ -14,6 +15,32 @@ runtime can install the complete demo environment directly from GitHub.
 ├── notebooks/              # Runnable Google Colab/Jupyter notebooks
 ├── pyproject.toml          # Package metadata and runtime dependencies
 └── README.md
+```
+
+## Choose a demo
+
+Do not install every possible demo dependency by default. Select a notebook
+below and use its matching install command. As more demos are added, each one
+will receive a separate dependency extra and a row in this table.
+
+| Demo | Notebook | Dependency extra |
+|---|---|---|
+| KAL + GMS end-to-end | [`notebooks/kal_gms_e2e_demo.ipynb`](notebooks/kal_gms_e2e_demo.ipynb) | `kal-gms` |
+
+For example, installing the repository without an extra installs only the
+shared KnowlytiX source:
+
+```bash
+python -m pip install \
+  "git+https://github.com/knowlytix/colab-demo.git"
+```
+
+Installing with `[kal-gms]` adds the third-party dependencies required by the
+KAL + GMS notebook:
+
+```bash
+python -m pip install \
+  "knowlytix-colab-demo[kal-gms] @ git+https://github.com/knowlytix/colab-demo.git"
 ```
 
 ## KAL + GMS end-to-end demo
@@ -44,20 +71,21 @@ The notebook's setup cell runs:
 
 ```python
 %pip install --upgrade --no-cache-dir \
-  "git+https://github.com/knowlytix/colab-demo.git"
+  "knowlytix-colab-demo[kal-gms] @ git+https://github.com/knowlytix/colab-demo.git"
 ```
 
 This installs the checked-in KnowlytiX packages, the compiled GMS extensions,
-the demo fixtures, and every third-party dependency declared in
-`pyproject.toml`. Restart the runtime if Colab asks you to do so after the
-installation.
+the demo fixtures, and the third-party dependencies assigned specifically to
+the `kal-gms` extra in `pyproject.toml`. It does not install dependencies that
+may later belong only to other notebooks. Restart the runtime if Colab asks
+you to do so after installation.
 
 For a local editable checkout, use:
 
 ```bash
 git clone https://github.com/knowlytix/colab-demo.git
 cd colab-demo
-python3.12 -m pip install -e .
+python3.12 -m pip install -e ".[kal-gms]"
 ```
 
 ### 3. Add a KnowlytiX license
