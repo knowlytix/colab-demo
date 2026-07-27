@@ -1,8 +1,0 @@
-build_store_from_triples
-extractor
-gms_query
-kal_loader
-knowlytix
-knowlytix_demo
-nl_query
-viz_sphere

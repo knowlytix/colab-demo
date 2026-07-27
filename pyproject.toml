@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "knowlytix-colab-demo"
+version = "1.0.0"
+description = "Installable KnowlytiX KAL and GMS end-to-end Colab demo"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "alembic",
+    "cryptography",
+    "fastapi",
+    "google-genai",
+    "httpx",
+    "litellm>=1.40",
+    "neo4j>=5,<6",
+    "numpy>=1.26",
+    "omegaconf>=2.3",
+    "pgvector>=0.3",
+    "plotly",
+    "pydantic>=2",
+    "pydantic-settings>=2.0",
+    "pymupdf>=1.24",
+    "pyjwt[crypto]>=2.8",
+    "python-dotenv",
+    "scikit-learn",
+    "scipy>=1.10",
+    "sqlalchemy[asyncio]>=2",
+    "torch>=2.0",
+    "transformers>=4.30",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["knowlytix*", "knowlytix_demo*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+"knowlytix.core" = ["*.pem", "*.so", "_license_keys/*.md", "_license_keys/*.pem"]
+"knowlytix.embedding" = ["*.so"]
+"knowlytix.kal.migrations" = ["*.ini", "*.mako"]
+"knowlytix.knowledge" = ["*.md", "LICENSE"]
+"knowlytix.knowledge.geode" = ["*.md"]
+"knowlytix.knowledge.rag" = ["*.md"]
+"knowlytix.benchmark" = ["*.md", "*.toml", "LICENSE"]
+"knowlytix.benchmark.fixtures.demo" = ["*.json", "*.pkl", "*.md"]
+"knowlytix.benchmark.fixtures.smoke" = ["*.json"]
+"knowlytix.benchmark.instances" = ["*.md"]
+"knowlytix_demo" = ["README.md", "fixtures/*.jsonl", "fixtures/*.md"]
+
+[tool.setuptools]
+include-package-data = true

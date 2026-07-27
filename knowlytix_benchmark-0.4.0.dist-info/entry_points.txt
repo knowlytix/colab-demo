@@ -1,2 +1,0 @@
-[console_scripts]
-benchmark = knowlytix.benchmark.cli:main

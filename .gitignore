@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+dist/
+build/
+.env
+.DS_Store
+.ipynb_checkpoints/
+_store_nb_*/
+license*.txt
+*.key
+*.lic
