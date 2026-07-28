@@ -65,22 +65,41 @@ checks the interpreter and platform during setup.
 
 For a local run, use a Linux x86-64 environment with Python 3.12.
 
-### 2. Install the repository and all dependencies
+### 2. Store this demo's dependencies in Google Drive
 
-The notebook's setup cell runs:
+The notebook does not assume that it is saved in a particular Drive directory.
+Its setup cell mounts the current user's Google Drive, creates a dedicated
+folder relative to **My Drive**, and installs the `kal-gms` environment there:
 
-```python
-%pip install --upgrade --no-cache-dir \
-  "knowlytix-colab-demo[kal-gms] @ git+https://github.com/knowlytix/colab-demo.git"
+```text
+My Drive/
+└── KnowlytiX/
+    └── colab-demo/
+        └── python-3.12/
+            └── site-packages/
 ```
 
-This installs the checked-in KnowlytiX packages, the compiled GMS extensions,
-the demo fixtures, and the third-party dependencies assigned specifically to
-the `kal-gms` extra in `pyproject.toml`. It does not install dependencies that
-may later belong only to other notebooks. Restart the runtime if Colab asks
-you to do so after installation.
+The folder is controlled near the top of the setup cell:
 
-For a local editable checkout, use:
+```python
+DRIVE_FOLDER = Path("KnowlytiX") / "colab-demo"
+REFRESH_DRIVE_DEPENDENCIES = False
+```
+
+Change `DRIVE_FOLDER` to another safe path relative to My Drive if desired.
+It is a dependency-storage location, not the notebook's location. The first
+run downloads the checked-in KnowlytiX packages, compiled GMS extensions, demo
+fixtures, and all third-party packages assigned to the `kal-gms` extra.
+Subsequent sessions reuse that persisted environment and add it to
+`sys.path`.
+
+Set `REFRESH_DRIVE_DEPENDENCIES = True` for one run whenever you want to pull
+repository or dependency updates, then return it to `False`. If Colab asks for
+Drive access, authorize the mount for the Google account in which you want the
+environment stored.
+
+Outside Colab, the same setup cell installs into the active Python environment
+instead. For a local editable checkout, use:
 
 ```bash
 git clone https://github.com/knowlytix/colab-demo.git
