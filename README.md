@@ -154,6 +154,22 @@ existing data.
 Generated `_store_nb_*` directories are runtime artifacts. They are ignored by
 Git and can be deleted between runs.
 
+## GitHub Actions verification
+
+The `KAL + GMS README demo` workflow checks the same path described above on
+Ubuntu x86-64 with Python 3.12.
+
+- On relevant pushes and pull requests, it installs `.[kal-gms]`, builds the
+  package, and validates every notebook code cell without making paid API calls.
+- A manual **Run workflow** execution runs the entire notebook top-to-bottom,
+  including the Anthropic and Neo4j sections. Neo4j runs in a disposable
+  service container.
+
+Before running the full workflow, add `KNOWLYTIX_LICENSE_KEY` and
+`ANTHROPIC_API_KEY` under **Repository settings → Secrets and variables →
+Actions**. You may also add `GMS_LLM_MODEL`; otherwise the notebook uses its
+documented default. The workflow never prints secret values.
+
 ## Security
 
 Never commit a KnowlytiX license, Anthropic key, or Neo4j credentials. Use

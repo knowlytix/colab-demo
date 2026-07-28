@@ -17,6 +17,7 @@ kal-gms = [
     "fastapi",
     "google-genai",
     "httpx",
+    "nbconvert>=7",
     "litellm>=1.40",
     "neo4j>=5,<6",
     "numpy>=1.26",

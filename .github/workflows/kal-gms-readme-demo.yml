@@ -1,0 +1,148 @@
+name: KAL + GMS README demo
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/kal-gms-readme-demo.yml"
+      - "README.md"
+      - "pyproject.toml"
+      - "knowlytix/**"
+      - "knowlytix_demo/**"
+      - "notebooks/kal_gms_e2e_demo.ipynb"
+  pull_request:
+    paths:
+      - ".github/workflows/kal-gms-readme-demo.yml"
+      - "README.md"
+      - "pyproject.toml"
+      - "knowlytix/**"
+      - "knowlytix_demo/**"
+      - "notebooks/kal_gms_e2e_demo.ipynb"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kal-gms-readme-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-readme-path:
+    name: Install and validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install the KAL + GMS dependencies
+        run: |
+          python -m pip install --upgrade pip build
+          python -m pip install -e ".[kal-gms]"
+
+      - name: Build the installable package
+        run: python -m build
+
+      - name: Validate notebook code cells
+        run: |
+          python - <<'PY'
+          import ast
+          import json
+          from pathlib import Path
+
+          path = Path("notebooks/kal_gms_e2e_demo.ipynb")
+          notebook = json.loads(path.read_text(encoding="utf-8"))
+          code_cells = [
+              "".join(cell["source"])
+              for cell in notebook["cells"]
+              if cell["cell_type"] == "code"
+          ]
+          for index, source in enumerate(code_cells):
+              compile(
+                  source,
+                  f"{path}:code-cell-{index}",
+                  "exec",
+                  flags=ast.PyCF_ALLOW_TOP_LEVEL_AWAIT,
+              )
+          print(f"Validated {len(code_cells)} notebook code cells.")
+          PY
+
+  run-complete-readme-demo:
+    name: Execute complete notebook
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate-readme-path
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    services:
+      neo4j:
+        image: neo4j:5.26-community
+        env:
+          NEO4J_AUTH: neo4j/ci-demopassword
+        ports:
+          - 7687:7687
+        options: >-
+          --health-cmd "cypher-shell -u neo4j -p ci-demopassword 'RETURN 1'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+
+    env:
+      KNOWLYTIX_LICENSE_KEY: ${{ secrets.KNOWLYTIX_LICENSE_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GMS_LLM_MODEL: ${{ secrets.GMS_LLM_MODEL }}
+      NEO4J_URI: bolt://localhost:7687
+      NEO4J_USERNAME: neo4j
+      NEO4J_PASSWORD: ci-demopassword
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Require private demo credentials
+        shell: bash
+        run: |
+          if [[ -z "${KNOWLYTIX_LICENSE_KEY}" ]]; then
+            echo "::error::Add KNOWLYTIX_LICENSE_KEY as a GitHub Actions secret."
+            exit 1
+          fi
+          if [[ -z "${ANTHROPIC_API_KEY}" ]]; then
+            echo "::error::Add ANTHROPIC_API_KEY as a GitHub Actions secret."
+            exit 1
+          fi
+
+      - name: Install the selected notebook dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[kal-gms]"
+
+      - name: Execute every README demo section
+        run: |
+          jupyter nbconvert \
+            --to notebook \
+            --execute notebooks/kal_gms_e2e_demo.ipynb \
+            --output kal_gms_e2e_demo.executed.ipynb \
+            --ExecutePreprocessor.timeout=3000
+
+      - name: Upload executed notebook
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kal-gms-e2e-executed
+          path: notebooks/kal_gms_e2e_demo.executed.ipynb
+          if-no-files-found: ignore
+          retention-days: 7
