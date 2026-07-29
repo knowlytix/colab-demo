@@ -52,10 +52,10 @@ distinguished from unsupported geometric guesses. Later sections compare
 grounded answers with an LLM-only baseline and optionally demonstrate live
 federation with Neo4j.
 
-[![Open the KAL + GMS demo in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1QjSnquvpG8wm8T5NfS_tDJmibV_RYYA2?usp=sharing)
+[![Open the KAL + GMS demo in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/knowlytix/colab-demo/blob/main/notebooks/kal_gms_e2e_demo.ipynb)
 
-The linked public Colab is the easiest way to run the demo. A copy is also
-kept in this repository for versioning.
+The Colab link loads the notebook directly from this repository's `main`
+branch, so it always reflects the latest checked-in version.
 
 ### 1. Use a compatible runtime
 
