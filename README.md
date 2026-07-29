@@ -175,19 +175,18 @@ Git and can be deleted between runs.
 
 ## GitHub Actions verification
 
-The `KAL + GMS README demo` workflow checks the same path described above on
-Ubuntu x86-64 with Python 3.12.
+The public-safe `KAL + GMS README demo` workflow checks the setup path on
+Ubuntu x86-64 with Python 3.12. On relevant pushes, pull requests, and manual
+dispatches, it:
 
-- On relevant pushes and pull requests, it installs `.[kal-gms]`, builds the
-  package, and validates every notebook code cell without making paid API calls.
-- A manual **Run workflow** execution runs the entire notebook top-to-bottom,
-  including the Anthropic and Neo4j sections. Neo4j runs in a disposable
-  service container.
+1. Installs `.[kal-gms]`.
+2. Builds the installable package.
+3. Validates every notebook code cell.
 
-Before running the full workflow, add `KNOWLYTIX_LICENSE_KEY` and
-`ANTHROPIC_API_KEY` under **Repository settings → Secrets and variables →
-Actions**. You may also add `GMS_LLM_MODEL`; otherwise the notebook uses its
-documented default. The workflow never prints secret values.
+The workflow does not receive a KnowlytiX license, API key, or database
+credential. It does not execute paid Anthropic calls, start Neo4j, run licensed
+notebook sections, or upload an executed notebook. Full demo execution remains
+an interactive user action in Colab with credentials supplied by that user.
 
 ## Security
 
