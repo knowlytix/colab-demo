@@ -30,7 +30,9 @@ concurrency:
 jobs:
   validate-readme-path:
     name: Install and validate
-    runs-on: ubuntu-latest
+    # Ubuntu 22.04 uses GLIBC 2.35, deliberately older than the GLIBC 2.38
+    # regression that broke hosted Colab imports.
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
 
     steps:
@@ -47,6 +49,22 @@ jobs:
         run: |
           python -m pip install --upgrade pip build
           python -m pip install -e ".[kal-gms]"
+
+      - name: Verify native-extension and preflight imports
+        env:
+          KNOWLYTIX_DEMO_MODE: "1"
+          KNOWLYTIX_QUIET: "1"
+        run: |
+          ldd --version
+          python - <<'PY'
+          import knowlytix.core
+          import knowlytix.knowledge
+          import knowlytix.benchmark
+          from knowlytix_demo.preflight import preflight
+
+          preflight(require_llm=False)
+          print("Native KnowlytiX imports passed on the GLIBC 2.35 runner.")
+          PY
 
       - name: Build the installable package
         run: python -m build
