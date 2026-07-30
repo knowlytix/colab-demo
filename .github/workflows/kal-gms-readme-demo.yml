@@ -55,10 +55,9 @@ jobs:
           KNOWLYTIX_DEMO_MODE: "1"
           KNOWLYTIX_QUIET: "1"
         run: |
-          ldd --version | head -n 1
+          ldd --version
           python - <<'PY'
           import knowlytix.core
-          import knowlytix.embedding
           import knowlytix.knowledge
           import knowlytix.benchmark
           from knowlytix_demo.preflight import preflight
