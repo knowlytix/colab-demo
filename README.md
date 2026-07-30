@@ -25,7 +25,7 @@ will receive a separate dependency extra and a row in this table.
 
 | Demo | Notebook | Dependency extra |
 |---|---|---|
-| KAL + GMS end-to-end | [`notebooks/kal_gms_e2e_demo.ipynb`](notebooks/kal_gms_e2e_demo.ipynb) | `kal-gms` |
+| KAL + GMS end-to-end | [KAL + GMS — end-to-end demo](notebooks/kal_gms_e2e_demo.ipynb) | `kal-gms` |
 
 For example, installing the repository without an extra installs only the
 shared KnowlytiX source:
@@ -45,14 +45,14 @@ python -m pip install \
 
 ## KAL + GMS end-to-end demo
 
-[`notebooks/kal_gms_e2e_demo.ipynb`](notebooks/kal_gms_e2e_demo.ipynb)
+[KAL + GMS — end-to-end demo](notebooks/kal_gms_e2e_demo.ipynb)
 shows how KAL combines triples from multiple sources, how GMS trains a
 geometric knowledge graph, and how grounded multi-hop answers can be
 distinguished from unsupported geometric guesses. Later sections compare
 grounded answers with an LLM-only baseline and optionally demonstrate live
 federation with Neo4j.
 
-[![Open the KAL + GMS demo in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/knowlytix/colab-demo/blob/main/notebooks/kal_gms_e2e_demo.ipynb)
+[![Open KAL + GMS — end-to-end demo in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/knowlytix/colab-demo/blob/main/notebooks/kal_gms_e2e_demo.ipynb)
 
 The Colab link loads the notebook directly from this repository's `main`
 branch, so it always reflects the latest checked-in version.
