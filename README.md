@@ -60,6 +60,9 @@ branch, so it always reflects the latest checked-in version.
 ### 1. Use a compatible runtime
 
 The included GMS extensions are compiled for 64-bit Linux and CPython 3.12.
+They are packaged against the manylinux/GLIBC 2.17–2.28 compatibility
+baseline used by hosted Colab rather than requiring the build machine's newer
+GLIBC.
 In Colab, select **Runtime → Change runtime type → Python 3**. The notebook
 checks the interpreter and platform during setup.
 
