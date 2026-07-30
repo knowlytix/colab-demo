@@ -184,7 +184,12 @@ existing data.
 6. Add the three Neo4j secrets and run section 8 if desired.
 
 Generated `_store_nb_*` directories are runtime artifacts. They are ignored by
-Git and can be deleted between runs.
+Git. Matching stores are reused when training cells are rerun; changes to their
+triples or training configuration trigger retraining automatically. Delete the
+directories if you want to force a clean retrain. Successful Anthropic
+responses are also cached in memory for the active runtime so rerunning
+sections 6–7 does not repeat identical paid requests; restarting the runtime
+clears that response cache.
 
 ## GitHub Actions verification
 

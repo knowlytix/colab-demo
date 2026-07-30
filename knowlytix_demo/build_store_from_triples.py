@@ -17,12 +17,15 @@ licensed env with the gmsh-distributed wheels installed.
 """
 from __future__ import annotations
 
+import hashlib
 import io
+import json
 import sys
 import time
 from collections.abc import Iterable
 from contextlib import redirect_stdout
-from dataclasses import replace
+from dataclasses import asdict, replace
+from pathlib import Path
 
 import torch
 
@@ -37,6 +40,7 @@ from knowlytix.knowledge.config import DocGMSConfig
 from knowlytix.knowledge.store import GMSExpertStore
 
 Triple = tuple[str, str, str]
+_CACHE_SCHEMA = 1
 
 
 def default_device() -> torch.device:
@@ -203,4 +207,49 @@ def build_store_from_triples(
     store.compression = compression
     store.router = MemoryRouter(enm, compression)
     store.markdown = ""
+    return store
+
+
+def load_or_build_store_from_triples(
+    triples: Iterable[Triple],
+    *,
+    config: DocGMSConfig | None = None,
+    device: torch.device | None = None,
+    store_path: str,
+) -> GMSExpertStore:
+    """Load an exact cached demo store or train and persist it once.
+
+    The cache key covers the ordered triples and complete training
+    configuration. A changed fixture or hyperparameter therefore retrains
+    automatically instead of silently reusing stale model weights.
+    """
+    triples = list(triples)
+    config = replace(config or DocGMSConfig(), store_path=store_path)
+    cache_payload = json.dumps(
+        {
+            "schema": _CACHE_SCHEMA,
+            "triples": triples,
+            "config": asdict(config),
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    ).encode()
+    cache_key = hashlib.sha256(cache_payload).hexdigest()
+    marker = Path(store_path) / ".demo-cache-key"
+    store = GMSExpertStore(config, device or default_device())
+
+    if marker.is_file() and marker.read_text(encoding="utf-8").strip() == cache_key:
+        try:
+            if store.load():
+                print(f"  Reused matching trained store at {store_path}")
+                return store
+        except (OSError, ValueError, KeyError, RuntimeError):
+            print(f"  Cached store at {store_path} is incomplete; retraining.")
+
+    store = build_store_from_triples(
+        triples, config=config, device=device, store_path=store_path
+    )
+    store.save()
+    marker.write_text(cache_key + "\n", encoding="utf-8")
     return store
