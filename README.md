@@ -65,38 +65,51 @@ checks the interpreter and platform during setup.
 
 For a local run, use a Linux x86-64 environment with Python 3.12.
 
-### 2. Store this demo's dependencies in Google Drive
+### 2. Install dependencies with a persistent Drive cache
 
 The notebook does not assume that it is saved in a particular Drive directory.
-Its setup cell mounts the current user's Google Drive, creates a dedicated
-folder relative to **My Drive**, and installs the `kal-gms` environment there:
+By default, its setup cell installs packages onto Colab's fast local runtime
+disk and uses a dedicated Google Drive folder only as pip's persistent download
+cache:
 
 ```text
 My Drive/
 └── KnowlytiX/
     └── colab-demo/
-        └── python-3.12/
-            └── site-packages/
+        └── pip-cache/
 ```
 
-The folder is controlled near the top of the setup cell:
+The behavior is controlled near the top of the setup cell:
 
 ```python
 DRIVE_FOLDER = Path("KnowlytiX") / "colab-demo"
-REFRESH_DRIVE_DEPENDENCIES = False
+USE_DRIVE_PIP_CACHE = True
+REFRESH_PACKAGE = False
 ```
 
 Change `DRIVE_FOLDER` to another safe path relative to My Drive if desired.
-It is a dependency-storage location, not the notebook's location. The first
-run downloads the checked-in KnowlytiX packages, compiled GMS extensions, demo
-fixtures, and all third-party packages assigned to the `kal-gms` extra.
-Subsequent sessions reuse that persisted environment and add it to
-`sys.path`.
+It is a download-cache location, not the notebook's location. Python imports
+packages from the active Colab runtime; it does not import thousands of package
+files through the slower mounted-Drive filesystem. The first session downloads
+missing packages. Later sessions can reuse cached archives, while packages that
+Colab already provides are left in place. Rerunning the cell in the same
+runtime is skipped automatically.
 
-Set `REFRESH_DRIVE_DEPENDENCIES = True` for one run whenever you want to pull
-repository or dependency updates, then return it to `False`. If Colab asks for
-Drive access, authorize the mount for the Google account in which you want the
-environment stored.
+Set `REFRESH_PACKAGE = True` for one run when you want to pull repository or
+dependency updates, then return it to `False`. Set `USE_DRIVE_PIP_CACHE =
+False` to avoid mounting Drive and use Colab's temporary local pip cache
+instead. If Colab asks for Drive access, authorize the mount for the Google
+account in which you want the cache stored.
+
+#### Dependency persistence options
+
+| Option | How to use it | Tradeoff |
+|---|---|---|
+| **Local install + Drive pip cache (default)** | Keep `USE_DRIVE_PIP_CACHE = True`. | Best balance: fast imports and faster repeat sessions. Packages are reinstalled into each new runtime, but downloads are reused. |
+| **Local install only** | Set `USE_DRIVE_PIP_CACHE = False`. | Fastest setup when Colab already has most packages and no Drive permission is needed, but missing packages must be downloaded after every runtime reset. |
+| **Drive wheelhouse** | Pre-download pinned wheels to Drive, then install with `pip --no-index --find-links=<wheelhouse>`. | More reproducible and can work without PyPI after preparation, but requires maintaining a Python/platform-specific wheel set and still installs locally each session. |
+| **Full environment in Drive** | Install with `pip --target=<Drive folder>` and add it to `sys.path`. | Persists installed files, but is not recommended: creating and importing thousands of small files through mounted Drive can take many minutes and can be less reliable. This was the notebook's previous behavior. |
+| **Prebuilt custom runtime/container** | Run the notebook against a local Jupyter runtime or managed image with dependencies preinstalled. | Fastest startup and strongest reproducibility, but it is not a standard hosted-Colab workflow and requires separate infrastructure. |
 
 Outside Colab, the same setup cell installs into the active Python environment
 instead. For a local editable checkout, use:
